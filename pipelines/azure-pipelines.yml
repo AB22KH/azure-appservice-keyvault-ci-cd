@@ -1,0 +1,38 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: DeployToD
+  displayName: "Deploy to Development"
+  jobs:
+    - job: Terraform_Deploy
+      steps:
+        - checkout: self
+        - template: terraform-template.yml
+          parameters:
+            environment: "D"
+
+- stage: DeployToT
+  displayName: "Deploy to Testing"
+  dependsOn: DeployToD
+  jobs:
+    - job: Terraform_Deploy
+      steps:
+        - checkout: self
+        - template: terraform-template.yml
+          parameters:
+            environment: "T"
+
+- stage: DeployToP
+  displayName: "Deploy to Production"
+  dependsOn: DeployToT
+  jobs:
+    - job: Terraform_Deploy
+      steps:
+        - checkout: self
+        - template: terraform-template.yml
+          parameters:
+            environment: "P"

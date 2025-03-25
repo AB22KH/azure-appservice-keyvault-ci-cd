@@ -1,0 +1,24 @@
+parameters:
+  environment: ''
+
+steps:
+  - task: TerraformTaskV4@4
+    displayName: 'Terraform Init'
+    inputs:
+      provider: "azurerm"
+      command: "init"
+
+  - task: TerraformTaskV4@4
+    displayName: 'Terraform Plan'
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      commandOptions: '-out main.tfplan'
+
+  - task: TerraformTaskV4@4
+    displayName: 'Terraform Apply'
+    condition: and(succeeded(), eq('${{ parameters.environment }}', 'P'))
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      commandOptions: 'main.tfplan'
